@@ -1,125 +1,114 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <title>Torino 1878 - Ferro e Sangue (CORRETTA)</title>
-    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Torino 1878 - Ferro e Sangue (Kepler.gl)</title>
+    <link rel="stylesheet" href="https://d1a3f4spazzrp4.cloudfront.net/kepler.gl/uber-fonts/4.0.0/superfine.css">
+    <link href="https://unpkg.com/kepler.gl@3.0.0/umd/keplergl.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
+    
+    <script src="https://unpkg.com/react@16.14.0/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16.14.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/redux@4.1.2/dist/redux.min.js"></script>
+    <script src="https://unpkg.com/react-redux@7.2.6/dist/react-redux.min.js"></script>
+    <script src="https://unpkg.com/styled-components@4.4.1/dist/styled-components.min.js"></script>
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
-    <style>
-        body { margin: 0; padding: 0; background-color: #FAF9F6; }
-        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-        /* Legenda stile pergamena */
-        .legend { position: absolute; bottom: 20px; right: 20px; background: rgba(250, 249, 246, 0.95); padding: 15px; font-family: Georgia, serif; border: 2px solid #8B4513; border-radius: 8px; z-index: 1000; font-size: 0.95em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); color: #332211;}
-        .legend-item { display: flex; align-items: center; margin-bottom: 6px; }
-        .dot { height: 13px; width: 13px; border-radius: 50%; display: inline-block; margin-right: 10px; border: 1px solid rgba(0,0,0,0.3); }
+    <script src="https://unpkg.com/kepler.gl@3.0.0/umd/keplergl.min.js"></script>
+
+    <style type="text/css">
+      body {margin: 0; padding: 0; overflow: hidden;}
+      #app {width: 100vw; height: 100vh;}
     </style>
-</head>
-<body>
-    <div id="map"></div>
-    <div class="legend">
-        <strong style="font-size: 1.15em; display: block; margin-bottom: 10px; text-align: center; border-bottom: 1px solid #8B4513; padding-bottom: 5px;">Cronache del 1878</strong>
-        <div class="legend-item"><span style="border-bottom: 3px solid #b7410e; width: 22px; display: inline-block; margin-right: 10px;"></span> Cinta Daziaria (Ruggine)</div>
-        <div class="legend-item"><span class="dot" style="background-color: #d90429;"></span> Eventi di Sangue (Rosso)</div>
-        <div class="legend-item"><span class="dot" style="background-color: #50727B;"></span> Fabbriche (Petrolio)</div>
-        <div class="legend-item"><span class="dot" style="background-color: #C27664;"></span> Piole e Cascine (Terracotta)</div>
-        <div class="legend-item"><span class="dot" style="background-color: #b7410e;"></span> Barriere Daziarie</div>
-    </div>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="text/javascript">
+      const MAPBOX_TOKEN = 'no-token'; 
+      const reducers = (function createReducers(redux, keplerGl) {
+        return redux.combineReducers({ keplerGl: keplerGl.keplerGlReducer });
+      }(Redux, KeplerGl));
 
-    <script>
-        // COORDINATE CORRETTE PER PIAZZA CASTELLO
-        const map = new maplibregl.Map({
-            container: 'map',
-            style: {
-                "version": 8,
-                "sources": {
-                    "rabbini-historical": {
-                        "type": "raster",
-                        "tiles": ["https://mapwarper.net/maps/tile/105552/{z}/{x}/{y}.png"],
-                        "tileSize": 256,
-                        "attribution": "Mappa Rabbini 1878"
-                    }
-                },
-                "layers": [{
-                    "id": "rabbini-layer",
-                    "type": "raster",
-                    "source": "rabbini-historical",
-                    "paint": { "raster-opacity": 1.0 }
-                }]
-            },
-            // Forziamo il centro sul centro storico
-            center: [7.683, 45.072], 
-            zoom: 14.2, // Zoom più stretto per leggere le strade
-            maxZoom: 16,
-            minZoom: 12
+      const store = Redux.createStore(reducers, {}, Redux.applyMiddleware(KeplerGl.taskMiddleware));
+
+      const App = (function createComponent(React, Redux, KeplerGl) {
+        return Redux.connect(state => state)(function(props) {
+          return React.createElement('div', {style: {position: 'absolute', width: '100%', height: '100%'}},
+            React.createElement(KeplerGl.KeplerGl, {
+              mapboxApiAccessToken: MAPBOX_TOKEN,
+              id: "map",
+              width: window.innerWidth,
+              height: window.innerHeight,
+              mapLibreGL: window.maplibregl
+            })
+          );
         });
+      }(React, ReactRedux, KeplerGl));
 
-        map.on('load', () => {
-            // CINTA DAZIARIA (Ricalibrata)
-            map.addSource('cinta', {
-                'type': 'geojson',
-                'data': {
-                    'type': 'Feature',
-                    'geometry': {"type":"Polygon","coordinates":[[[7.674,45.053],[7.669,45.056],[7.665,45.061],[7.664,45.068],[7.668,45.080],[7.678,45.087],[7.691,45.090],[7.701,45.085],[7.706,45.075],[7.704,45.064],[7.695,45.056],[7.685,45.052],[7.674,45.053]]]}
+      ReactDOM.render(React.createElement(ReactRedux.Provider, {store}, React.createElement(App)), document.getElementById('app'));
+
+      const datasets = [
+        {
+          version: "v1",
+          data: {
+            id: "mappa_milton",
+            label: "Torino 1878 - Ferro e Sangue",
+            fields: [
+              {name: "nome", type: "string"},
+              {name: "tipo", type: "string"},
+              {name: "lat", type: "real"},
+              {name: "lng", type: "real"},
+              {name: "descrizione", type: "string"}
+            ],
+            rows: [
+              ["Barriera di Milano", "Barriera", 45.0935, 7.6915, "Cuore della malavita."],
+              ["Barriera di Nizza", "Barriera", 45.0485, 7.6755, "Passaggio carrettieri."],
+              ["Cascina Fossata", "Cascina", 45.0940, 7.6850, "Covo Banda del Rasoio."],
+              ["Fabbrica Lanza", "Fabbrica", 45.0485, 7.6755, "Produzione candele."],
+              ["Scontro alla Fossata", "Evento Sangue", 45.0950, 7.6880, "Battaglia campale Barabba."],
+              ["Agguato via Cigna", "Evento Sangue", 45.0800, 7.6780, "Regolamento di conti."],
+              ["Osteria della Malora", "Piola", 45.0720, 7.6810, "Base di Milton."]
+            ]
+          }
+        }
+      ];
+
+      const config = {
+        version: "v1",
+        config: {
+          mapStyle: {
+            styleType: "rabbini",
+            mapStyles: {
+              rabbini: {
+                id: "rabbini",
+                label: "Mappa Rabbini 1878",
+                url: "https://gist.githubusercontent.com/mbrg7/c6b3288ad7ef47308bd799a101e6bb16/raw/686f2f5f2f836f1c60111305249a65c3598175a0/mappa.json"
+              }
+            }
+          },
+          visState: {
+            layers: [{
+              id: "layer_punti",
+              type: "point",
+              config: {
+                dataId: "mappa_milton",
+                columns: {lat: "lat", lng: "lng"},
+                isVisible: true,
+                visConfig: { radius: 20, fixedRadius: false, opacity: 0.8 },
+                colorConfig: {
+                  colorField: {name: "tipo", type: "string"},
+                  colorRange: {
+                    colors: ["#b7410e", "#50727B", "#d90429", "#2E4F4F", "#C27664"]
+                  }
                 }
-            });
-            map.addLayer({'id': 'cinta-outline', 'type': 'line', 'source': 'cinta', 'paint': {'line-color': '#b7410e', 'line-width': 3.5, 'line-opacity': 0.8}});
+              }
+            }]
+          }
+        }
+      };
 
-            // TUTTI I PUNTI DEL ROMANZO
-            map.addSource('punti', {
-                'type': 'geojson',
-                'data': {
-                    'type': 'FeatureCollection',
-                    'features': [
-                        // BARRIERE
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.691, 45.090] }, 'properties': { 't': 'Barriera di Milano', 'type': 'Barriera', 'd': 'Porta Nord della malavita.' } },
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.668, 45.080] }, 'properties': { 't': 'Barriera di Francia', 'type': 'Barriera', 'd': 'Accesso ovest, zona di opifici.' } },
-                        
-                        // CASCINE E PIOLE
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.685, 45.094] }, 'properties': { 't': 'Cascina Fossata', 'type': 'Cascina', 'd': 'Rifugio della Banda del Rasoio.' } },
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.681, 45.072] }, 'properties': { 't': 'Osteria della Malora', 'type': 'Piola', 'd': 'Il covo di Milton.' } },
-                        
-                        // FABBRICHE
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.675, 45.048] }, 'properties': { 't': 'Fabbrica Lanza', 'type': 'Fabbrica', 'd': 'Simbolo del Ferro e Sangue.' } },
-
-                        // EVENTI DEI BARABBA
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.688, 45.095] }, 'properties': { 't': 'Scontro alla Fossata', 'type': 'Evento', 'd': 'Battaglia tra Barabba e guardie daziere.' } }
-                    ]
-                }
-            });
-
-            map.addLayer({
-                'id': 'punti-layer',
-                'type': 'circle',
-                'source': 'punti',
-                'paint': {
-                    'circle-radius': 9,
-                    'circle-color': [
-                        'match', ['get', 'type'],
-                        'Barriera', '#b7410e',
-                        'Cascina', '#C27664',
-                        'Piola', '#C27664',
-                        'Fabbrica', '#50727B',
-                        'Evento', '#d90429', // Rosso Sangue
-                        '#000000'
-                    ],
-                    'circle-stroke-width': 2.5,
-                    'circle-stroke-color': '#ffffff'
-                }
-            });
-
-            // Popup al click
-            map.on('click', 'punti-layer', (e) => {
-                const props = e.features[0].properties;
-                new maplibregl.Popup({closeButton: false, offset: 10})
-                    .setLngLat(e.features[0].geometry.coordinates)
-                    .setHTML('<div style="font-family: Georgia, serif; padding: 5px;"><strong style="color:#d90429; font-size:1.1em;">'+props.t+'</strong><br><small style="color:#666;">'+props.type+'</small><br><br>'+props.d+'</div>')
-                    .addTo(map);
-            });
-
-            map.on('mouseenter', 'punti-layer', () => { map.getCanvas().style.cursor = 'pointer'; });
-            map.on('mouseleave', 'punti-layer', () => { map.getCanvas().style.cursor = ''; });
-        });
+      window.addEventListener('load', () => {
+        store.dispatch(KeplerGl.addDataToMap({ datasets, config }));
+      });
     </script>
-</body>
+  </body>
 </html>
