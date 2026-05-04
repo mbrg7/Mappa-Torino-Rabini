@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Torino 1878 - Ferro e Sangue (MapLibre)</title>
+
+    <!-- Uber Font -->
+    <link rel="stylesheet" href="https://d1a3f4spazzrp4.cloudfront.net/kepler.gl/uber-fonts/4.0.0/superfine.css">
+
+    <!-- Kepler.gl CSS -->
+    <link href="https://unpkg.com/kepler.gl@3.0.0/umd/keplergl.min.css" rel="stylesheet">
+
+    <!-- MapLibre GL CSS -->
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
+
+    <!-- React/Redux Dependencies -->
+    <script src="https://unpkg.com/react@16.14.0/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16.14.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/redux@4.1.2/dist/redux.min.js"></script>
+    <script src="https://unpkg.com/react-redux@7.2.6/dist/react-redux.min.js"></script>
+    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+    <script src="https://unpkg.com/styled-components@4.4.1/dist/styled-components.min.js"></script>
+
+    <!-- Kepler.gl Script -->
+    <script src="https://unpkg.com/kepler.gl@3.0.0/umd/keplergl.min.js"></script>
+
+    <style type="text/css">
+      body {margin: 0; padding: 0; overflow: hidden;}
+      #app {width: 100vw; height: 100vh;}
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script type="text/javascript">
+      /**
+       * CONFIGURAZIONE MAPLIBRE
+       * Non serve un token reale, ma Kepler richiede la variabile definita.
+       */
+      const MAPBOX_TOKEN = 'no-token-needed';
+
+      const reducers = (function createReducers(redux, keplerGl) {
+        return redux.combineReducers({
+          keplerGl: keplerGl.keplerGlReducer
+        });
+      }(Redux, KeplerGl));
+
+      const store = Redux.createStore(
+        reducers,
+        {},
+        Redux.applyMiddleware(KeplerGl.taskMiddleware)
+      );
+
+      const App = (function createComponent(React, Redux, KeplerGl) {
+        return Redux.connect(state => state)(function(props) {
+          return React.createElement('div', {style: {position: 'absolute', width: '100%', height: '100%'}},
+            React.createElement(KeplerGl.KeplerGl, {
+              mapboxApiAccessToken: MAPBOX_TOKEN,
+              id: "map",
+              width: window.innerWidth,
+              height: window.innerHeight,
+              /* Impostiamo MapLibre come motore di rendering */
+              mapLibreGL: window.maplibregl 
+            })
+          );
+        });
+      }(React, ReactRedux, KeplerGl));
+
+      ReactDOM.render(
+        React.createElement(ReactRedux.Provider, {store},
+          React.createElement(App)
+        ),
+        document.getElementById('app')
+      );
+
+      /**
+       * CARICAMENTO DATI E STILE
+       */
+      window.addEventListener('load', function() {
+        // Qui carichiamo lo stile della mappa storica che punta a Map Warper
+        const config = {
+          version: 'v1',
+          config: {
+            mapStyle: {
+              styleType: 'rabbini_1878',
+              mapStyles: {
+                'rabbini_1878': {
+                  id: 'rabbini_1878',
+                  label: 'Carta Rabbini 1878',
+                  url: 'https://gist.githubusercontent.com/mbrg7/c6b3288ad7ef47308bd799a101e6bb16/raw/686f2f5f2f836f1c60111305249a65c3598175a0/mappa.json',
+                  icon: 'https://mapwarper.net/maps/tile/105552/15/17154/11738.png'
+                }
+              }
+            }
+          }
+        };
+
+        // Inizializza la mappa con lo stile custom
+        store.dispatch(KeplerGl.addDataToMap({
+          datasets: [], // Aggiungi qui i tuoi dati CSV/GeoJSON se li hai estratti
+          config: config
+        }));
+      });
+    </script>
+  </body>
+</html>
