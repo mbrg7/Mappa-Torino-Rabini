@@ -1,44 +1,69 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8"/>
+<head>
+    <meta charset="utf-8" />
     <title>Torino 1878 - Ferro e Sangue</title>
-    <link rel="stylesheet" href="https://d1a3f4spazzrp4.cloudfront.net/kepler.gl/uber-fonts/4.0.0/superfine.css">
-    <link href="https://unpkg.com/kepler.gl@3.0.0/umd/keplergl.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
-    <script src="https://unpkg.com/react@16.14.0/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@16.14.0/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/redux@4.1.2/dist/redux.min.js"></script>
-    <script src="https://unpkg.com/react-redux@7.2.6/dist/react-redux.min.js"></script>
-    <script src="https://unpkg.com/styled-components@4.4.1/dist/styled-components.min.js"></script>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-    <script src="https://unpkg.com/kepler.gl@3.0.0/umd/keplergl.min.js"></script>
-    <style type="text/css">body {margin: 0; padding: 0; overflow: hidden;} #app {width: 100vw; height: 100vh;}</style>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="text/javascript">
-      const MAPBOX_TOKEN = 'pk.no-token'; 
-      const reducers = (function createReducers(redux, keplerGl) {
-        return redux.combineReducers({ keplerGl: keplerGl.keplerGlReducer });
-      }(Redux, KeplerGl));
-      const store = Redux.createStore(reducers, {}, Redux.applyMiddleware(KeplerGl.taskMiddleware));
-      const App = (function createComponent(React, Redux, KeplerGl) {
-        return Redux.connect(state => state)(function(props) {
-          return React.createElement('div', {style: {position: 'absolute', width: '100%', height: '100%'}},
-            React.createElement(KeplerGl.KeplerGl, {
-              mapboxApiAccessToken: MAPBOX_TOKEN,
-              id: "map",
-              width: window.innerWidth,
-              height: window.innerHeight,
-              mapLibreGL: window.maplibregl
-            })
-          );
-        });
-      }(React, ReactRedux, KeplerGl));
-      ReactDOM.render(React.createElement(ReactRedux.Provider, {store}, React.createElement(App)), document.getElementById('app'));
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <style>
+        body { margin: 0; padding: 0; background-color: #FAF9F6; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        .map-overlay { position: absolute; bottom: 20px; right: 20px; background: rgba(250, 249, 246, 0.9); padding: 10px; font-family: Georgia, serif; border: 1px solid #b7410e; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="map-overlay">
+        <strong>Torino 1878</strong><br>
+        <span style="color:#b7410e;">●</span> Cinta Daziaria<br>
+        <span style="color:#50727B;">●</span> Fabbriche
+    </div>
 
-      const datasets = [
-        { version: "v1", data: { id: "cinta", label: "Cinta Daziaria", allData: [[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[7.683,45.046],[7.6755,45.0485],[7.662,45.045],[7.6545,45.0515],[7.651,45.0575],[7.6555,45.0755],[7.66,45.083],[7.675,45.091],[7.6915,45.0935],[7.6985,45.0845],[7.705,45.074],[7.6955,45.0645],[7.691,45.0595],[7.683,45.046]]]}}]], fields: [{name: "_geojson", type: "geojson"}]}},
-        { version: "v1", data: { id: "punti", label: "Luoghi Milton", allData: [
-            [{"type":"Feature","properties":{"n":"Fabbrica Lanza"},"geometry":{"type":"Point","coordinates":[7.6755,45
+    <script>
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://gist.githubusercontent.com/mbrg7/c6b3288ad7ef47308bd799a101e6bb16/raw/686f2f5f2f836f1c60111305249a65c3598175a0/mappa.json',
+            center: [7.68, 45.07], 
+            zoom: 13
+        });
+
+        map.on('load', () => {
+            // Aggiungiamo i dati della Cinta Daziaria direttamente
+            map.addSource('cinta', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'Feature',
+                    'geometry': {"type":"Polygon","coordinates":[[[7.683,45.046],[7.6755,45.0485],[7.662,45.045],[7.6545,45.0515],[7.651,45.0575],[7.6555,45.0755],[7.66,45.083],[7.675,45.091],[7.6915,45.0935],[7.6985,45.0845],[7.705,45.074],[7.6955,45.0645],[7.691,45.0595],[7.683,45.046]]]}
+                }
+            });
+
+            map.addLayer({
+                'id': 'cinta-layer',
+                'type': 'line',
+                'source': 'cinta',
+                'paint': { 'line-color': '#b7410e', 'line-width': 3 }
+            });
+
+            // Aggiungiamo i punti (Fabbriche/Piole)
+            map.addSource('punti', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'FeatureCollection',
+                    'features': [
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.6755, 45.0485] }, 'properties': { 'title': 'Fabbrica Lanza' } },
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.685, 45.094] }, 'properties': { 'title': 'Cascina Fossata' } }
+                    ]
+                }
+            });
+
+            map.addLayer({
+                'id': 'punti-layer',
+                'type': 'circle',
+                'source': 'punti',
+                'paint': { 'circle-radius': 6, 'circle-color': '#50727B', 'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff' }
+            });
+        });
+    </script>
+</body>
+</html>
