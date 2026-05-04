@@ -2,60 +2,88 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Torino 1878 - Ferro e Sangue</title>
+    <title>Torino 1878 - Ferro e Sangue (CORRETTA)</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
         body { margin: 0; padding: 0; background-color: #FAF9F6; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-        .legend { position: absolute; bottom: 20px; right: 20px; background: rgba(255,255,255,0.9); padding: 15px; font-family: Georgia, serif; border: 2px solid #b7410e; border-radius: 8px; z-index: 1000; font-size: 0.9em; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
-        .dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        /* Legenda stile pergamena */
+        .legend { position: absolute; bottom: 20px; right: 20px; background: rgba(250, 249, 246, 0.95); padding: 15px; font-family: Georgia, serif; border: 2px solid #8B4513; border-radius: 8px; z-index: 1000; font-size: 0.95em; box-shadow: 0 4px 10px rgba(0,0,0,0.3); color: #332211;}
+        .legend-item { display: flex; align-items: center; margin-bottom: 6px; }
+        .dot { height: 13px; width: 13px; border-radius: 50%; display: inline-block; margin-right: 10px; border: 1px solid rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
     <div id="map"></div>
     <div class="legend">
-        <strong style="font-size: 1.1em; display: block; margin-bottom: 8px;">Legenda Torino 1878</strong>
-        <div class="legend-item"><span style="border-bottom: 3px solid #b7410e; width: 20px; display: inline-block; margin-right: 8px;"></span> Cinta Daziaria</div>
-        <div class="legend-item"><span class="dot" style="background-color: #d90429;"></span> Eventi di Sangue</div>
-        <div class="legend-item"><span class="dot" style="background-color: #50727B;"></span> Fabbriche</div>
-        <div class="legend-item"><span class="dot" style="background-color: #C27664;"></span> Piole e Cascine</div>
-        <div class="legend-item"><span class="dot" style="background-color: #b7410e;"></span> Barriere</div>
+        <strong style="font-size: 1.15em; display: block; margin-bottom: 10px; text-align: center; border-bottom: 1px solid #8B4513; padding-bottom: 5px;">Cronache del 1878</strong>
+        <div class="legend-item"><span style="border-bottom: 3px solid #b7410e; width: 22px; display: inline-block; margin-right: 10px;"></span> Cinta Daziaria (Ruggine)</div>
+        <div class="legend-item"><span class="dot" style="background-color: #d90429;"></span> Eventi di Sangue (Rosso)</div>
+        <div class="legend-item"><span class="dot" style="background-color: #50727B;"></span> Fabbriche (Petrolio)</div>
+        <div class="legend-item"><span class="dot" style="background-color: #C27664;"></span> Piole e Cascine (Terracotta)</div>
+        <div class="legend-item"><span class="dot" style="background-color: #b7410e;"></span> Barriere Daziarie</div>
     </div>
 
     <script>
+        // COORDINATE CORRETTE PER PIAZZA CASTELLO
         const map = new maplibregl.Map({
             container: 'map',
-            style: 'https://gist.githubusercontent.com/mbrg7/c6b3288ad7ef47308bd799a101e6bb16/raw/686f2f5f2f836f1c60111305249a65c3598175a0/mappa.json',
-            center: [7.68, 45.07], 
-            zoom: 13.5
+            style: {
+                "version": 8,
+                "sources": {
+                    "rabbini-historical": {
+                        "type": "raster",
+                        "tiles": ["https://mapwarper.net/maps/tile/105552/{z}/{x}/{y}.png"],
+                        "tileSize": 256,
+                        "attribution": "Mappa Rabbini 1878"
+                    }
+                },
+                "layers": [{
+                    "id": "rabbini-layer",
+                    "type": "raster",
+                    "source": "rabbini-historical",
+                    "paint": { "raster-opacity": 1.0 }
+                }]
+            },
+            // Forziamo il centro sul centro storico
+            center: [7.683, 45.072], 
+            zoom: 14.2, // Zoom più stretto per leggere le strade
+            maxZoom: 16,
+            minZoom: 12
         });
 
         map.on('load', () => {
-            // CINTA DAZIARIA
+            // CINTA DAZIARIA (Ricalibrata)
             map.addSource('cinta', {
                 'type': 'geojson',
                 'data': {
                     'type': 'Feature',
-                    'geometry': {"type":"Polygon","coordinates":[[[7.683,45.046],[7.6755,45.0485],[7.662,45.045],[7.6545,45.0515],[7.651,45.0575],[7.6555,45.0755],[7.66,45.083],[7.675,45.091],[7.6915,45.0935],[7.6985,45.0845],[7.705,45.074],[7.6955,45.0645],[7.691,45.0595],[7.683,45.046]]]}
+                    'geometry': {"type":"Polygon","coordinates":[[[7.674,45.053],[7.669,45.056],[7.665,45.061],[7.664,45.068],[7.668,45.080],[7.678,45.087],[7.691,45.090],[7.701,45.085],[7.706,45.075],[7.704,45.064],[7.695,45.056],[7.685,45.052],[7.674,45.053]]]}
                 }
             });
-            map.addLayer({'id': 'cinta-outline', 'type': 'line', 'source': 'cinta', 'paint': {'line-color': '#b7410e', 'line-width': 3}});
+            map.addLayer({'id': 'cinta-outline', 'type': 'line', 'source': 'cinta', 'paint': {'line-color': '#b7410e', 'line-width': 3.5, 'line-opacity': 0.8}});
 
-            // TUTTI I PUNTI
+            // TUTTI I PUNTI DEL ROMANZO
             map.addSource('punti', {
                 'type': 'geojson',
                 'data': {
                     'type': 'FeatureCollection',
                     'features': [
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.6915, 45.0935] }, 'properties': { 't': 'Barriera di Milano', 'type': 'Barriera', 'd': 'Il cuore pulsante della malavita operaia.' } },
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.685, 45.094] }, 'properties': { 't': 'Cascina Fossata', 'type': 'Cascina', 'd': 'Covo della Banda del Rasoio.' } },
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.688, 45.095] }, 'properties': { 't': 'Scontro alla Fossata', 'type': 'Evento', 'd': 'Battaglia tra Barabba e guardie daziere.' } },
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.6755, 45.0485] }, 'properties': { 't': 'Fabbrica Lanza', 'type': 'Fabbrica', 'd': 'Simbolo dell’industria che divora la città.' } },
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.681, 45.072] }, 'properties': { 't': 'Osteria della Malora', 'type': 'Piola', 'd': 'Dove Milton pianifica le sue mosse.' } },
-                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.678, 45.080] }, 'properties': { 't': 'Agguato via Cigna', 'type': 'Evento', 'd': 'Regolamento di conti tra bande rivali.' } }
+                        // BARRIERE
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.691, 45.090] }, 'properties': { 't': 'Barriera di Milano', 'type': 'Barriera', 'd': 'Porta Nord della malavita.' } },
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.668, 45.080] }, 'properties': { 't': 'Barriera di Francia', 'type': 'Barriera', 'd': 'Accesso ovest, zona di opifici.' } },
+                        
+                        // CASCINE E PIOLE
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.685, 45.094] }, 'properties': { 't': 'Cascina Fossata', 'type': 'Cascina', 'd': 'Rifugio della Banda del Rasoio.' } },
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.681, 45.072] }, 'properties': { 't': 'Osteria della Malora', 'type': 'Piola', 'd': 'Il covo di Milton.' } },
+                        
+                        // FABBRICHE
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.675, 45.048] }, 'properties': { 't': 'Fabbrica Lanza', 'type': 'Fabbrica', 'd': 'Simbolo del Ferro e Sangue.' } },
+
+                        // EVENTI DEI BARABBA
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.688, 45.095] }, 'properties': { 't': 'Scontro alla Fossata', 'type': 'Evento', 'd': 'Battaglia tra Barabba e guardie daziere.' } }
                     ]
                 }
             });
@@ -65,26 +93,27 @@
                 'type': 'circle',
                 'source': 'punti',
                 'paint': {
-                    'circle-radius': 8,
+                    'circle-radius': 9,
                     'circle-color': [
                         'match', ['get', 'type'],
                         'Barriera', '#b7410e',
                         'Cascina', '#C27664',
                         'Piola', '#C27664',
                         'Fabbrica', '#50727B',
-                        'Evento', '#d90429',
+                        'Evento', '#d90429', // Rosso Sangue
                         '#000000'
                     ],
-                    'circle-stroke-width': 2,
+                    'circle-stroke-width': 2.5,
                     'circle-stroke-color': '#ffffff'
                 }
             });
 
+            // Popup al click
             map.on('click', 'punti-layer', (e) => {
                 const props = e.features[0].properties;
-                new maplibregl.Popup()
+                new maplibregl.Popup({closeButton: false, offset: 10})
                     .setLngLat(e.features[0].geometry.coordinates)
-                    .setHTML('<strong>'+props.t+'</strong><br><small>'+props.type+'</small><br><br>'+props.d)
+                    .setHTML('<div style="font-family: Georgia, serif; padding: 5px;"><strong style="color:#d90429; font-size:1.1em;">'+props.t+'</strong><br><small style="color:#666;">'+props.type+'</small><br><br>'+props.d+'</div>')
                     .addTo(map);
             });
 
