@@ -1,57 +1,28 @@
- 
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="UTF-8"/>
-    <title>Torino 1878 - Ferro e Sangue (MapLibre)</title>
-
-    <!-- Uber Font -->
+    <title>Torino 1878 - Ferro e Sangue</title>
     <link rel="stylesheet" href="https://d1a3f4spazzrp4.cloudfront.net/kepler.gl/uber-fonts/4.0.0/superfine.css">
-
-    <!-- Kepler.gl CSS -->
     <link href="https://unpkg.com/kepler.gl@3.0.0/umd/keplergl.min.css" rel="stylesheet">
-
-    <!-- MapLibre GL CSS -->
     <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
-
-    <!-- React/Redux Dependencies -->
     <script src="https://unpkg.com/react@16.14.0/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@16.14.0/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/redux@4.1.2/dist/redux.min.js"></script>
     <script src="https://unpkg.com/react-redux@7.2.6/dist/react-redux.min.js"></script>
-    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
     <script src="https://unpkg.com/styled-components@4.4.1/dist/styled-components.min.js"></script>
-
-    <!-- Kepler.gl Script -->
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script src="https://unpkg.com/kepler.gl@3.0.0/umd/keplergl.min.js"></script>
-
-    <style type="text/css">
-      body {margin: 0; padding: 0; overflow: hidden;}
-      #app {width: 100vw; height: 100vh;}
-    </style>
+    <style type="text/css">body {margin: 0; padding: 0; overflow: hidden;} #app {width: 100vw; height: 100vh;}</style>
   </head>
   <body>
     <div id="app"></div>
-
     <script type="text/javascript">
-      /**
-       * CONFIGURAZIONE MAPLIBRE
-       * Non serve un token reale, ma Kepler richiede la variabile definita.
-       */
-      const MAPBOX_TOKEN = 'no-token-needed';
-
+      const MAPBOX_TOKEN = 'pk.no-token'; 
       const reducers = (function createReducers(redux, keplerGl) {
-        return redux.combineReducers({
-          keplerGl: keplerGl.keplerGlReducer
-        });
+        return redux.combineReducers({ keplerGl: keplerGl.keplerGlReducer });
       }(Redux, KeplerGl));
-
-      const store = Redux.createStore(
-        reducers,
-        {},
-        Redux.applyMiddleware(KeplerGl.taskMiddleware)
-      );
-
+      const store = Redux.createStore(reducers, {}, Redux.applyMiddleware(KeplerGl.taskMiddleware));
       const App = (function createComponent(React, Redux, KeplerGl) {
         return Redux.connect(state => state)(function(props) {
           return React.createElement('div', {style: {position: 'absolute', width: '100%', height: '100%'}},
@@ -60,121 +31,14 @@
               id: "map",
               width: window.innerWidth,
               height: window.innerHeight,
-              /* Impostiamo MapLibre come motore di rendering */
-              mapLibreGL: window.maplibregl 
+              mapLibreGL: window.maplibregl
             })
           );
         });
       }(React, ReactRedux, KeplerGl));
+      ReactDOM.render(React.createElement(ReactRedux.Provider, {store}, React.createElement(App)), document.getElementById('app'));
 
-      ReactDOM.render(
-        React.createElement(ReactRedux.Provider, {store},
-          React.createElement(App)
-        ),
-        document.getElementById('app')
-      );
-
-      /**
-       * CARICAMENTO DATI E STILE
-       */
-      window.addEventListener('load', function() {
-        // Qui carichiamo lo stile della mappa storica che punta a Map Warper
-        const config = {
-          version: 'v1',
-          config: {
-            mapStyle: {
-              styleType: 'rabbini_1878',
-              mapStyles: {
-                'rabbini_1878': {
-                  id: 'rabbini_1878',
-                  label: 'Carta Rabbini 1878',
-                  url: 'https://gist.githubusercontent.com/mbrg7/c6b3288ad7ef47308bd799a101e6bb16/raw/686f2f5f2f836f1c60111305249a65c3598175a0/mappa.json',
-                  icon: 'https://mapwarper.net/maps/tile/105552/15/17154/11738.png'
-                }
-              }
-            }
-          }
-        };
-
-        // Inizializza la mappa con lo stile custom
-        store.dispatch(KeplerGl.addDataToMap({
-          datasets: [const datasets = [
-  {
-    version: "v1",
-    data: {
-      id: "xlwfy8",
-      label: "struttura_torino_1900.geojson",
-      allData: [
-        [{"type":"Feature","properties":{"name":"Area Interna Cinta Daziaria Torino 1900","description":"Perimetro approssimato della cinta daziaria del 1853 e successivi ampliamenti."},"geometry":{"type":"Polygon","coordinates":[[[7.683,45.046],[7.6755,45.0485],[7.662,45.045],[7.6545,45.0515],[7.651,45.0575],[7.6555,45.0755],[7.66,45.083],[7.675,45.091],[7.6915,45.0935],[7.6985,45.0845],[7.705,45.074],[7.6955,45.0645],[7.691,45.0595],[7.683,45.046]]]}},"Area Interna Cinta Daziaria Torino 1900","Perimetro approssimato della cinta daziaria del 1853 e successivi ampliamenti.",null,null],
-        [{"type":"Feature","properties":{"name":"Barriera di Nizza","tipo":"Barriera Daziaria","posizione":"Piazza Carducci"},"geometry":{"type":"Point","coordinates":[7.6755,45.0485]}},"Barriera di Nizza",null,"Barriera Daziaria","Piazza Carducci"],
-        [{"type":"Feature","properties":{"name":"Barriera di Stupinigi","tipo":"Barriera Daziaria","posizione":"Corso Unione Sovietica / Corso Bramante"},"geometry":{"type":"Point","coordinates":[7.662,45.045]}},"Barriera di Stupinigi",null,"Barriera Daziaria","Corso Unione Sovietica / Corso Bramante"],
-        [{"type":"Feature","properties":{"name":"Barriera di Orbassano","tipo":"Barriera Daziaria","posizione":"Piazza di Robilant"},"geometry":{"type":"Point","coordinates":[7.6545,45.0515]}},"Barriera di Orbassano",null,"Barriera Daziaria","Piazza di Robilant"],
-        [{"type":"Feature","properties":{"name":"Barriera di Francia","tipo":"Barriera Daziaria","posizione":"Piazza Bernini"},"geometry":{"type":"Point","coordinates":[7.6555,45.0755]}},"Barriera di Francia",null,"Barriera Daziaria","Piazza Bernini"],
-        [{"type":"Feature","properties":{"name":"Barriera di Lanzo","tipo":"Barriera Daziaria","posizione":"Piazza Baldissera"},"geometry":{"type":"Point","coordinates":[7.675,45.091]}},"Barriera di Lanzo",null,"Barriera Daziaria","Piazza Baldissera"],
-        [{"type":"Feature","properties":{"name":"Barriera di Milano","tipo":"Barriera Daziaria","posizione":"Piazza Crispi"},"geometry":{"type":"Point","coordinates":[7.6915,45.0935]}},"Barriera di Milano",null,"Barriera Daziaria","Piazza Crispi"],
-        [{"type":"Feature","properties":{"name":"Barriera di Casale","tipo":"Barriera Daziaria","posizione":"Piazza Borromini"},"geometry":{"type":"Point","coordinates":[7.6955,45.0645]}},"Barriera di Casale",null,"Barriera Daziaria","Piazza Borromini"],
-        [{"type":"Feature","properties":{"name":"Barriera di Piacenza","tipo":"Barriera Daziaria","posizione":"Corso Moncalieri / Ponte Isabella"},"geometry":{"type":"Point","coordinates":[7.683,45.046]}},"Barriera di Piacenza",null,"Barriera Daziaria","Corso Moncalieri / Ponte Isabella"],
-        [{"type":"Feature","properties":{"name":"Barriera di Moncalieri","tipo":"Barriera Daziaria","posizione":"Corso Moncalieri / Ponte Umberto I"},"geometry":{"type":"Point","coordinates":[7.691,45.0595]}},"Barriera di Moncalieri",null,"Barriera Daziaria","Corso Moncalieri / Ponte Umberto I"],
-        [{"type":"Feature","properties":{"name":"Barriera di Crocetta","tipo":"Barriera Daziaria","posizione":"Largo Re Umberto"},"geometry":{"type":"Point","coordinates":[7.6655,45.0565]}},"Barriera di Crocetta",null,"Barriera Daziaria","Largo Re Umberto"],
-        [{"type":"Feature","properties":{"name":"Barriera di San Paolo","tipo":"Barriera Daziaria","posizione":"Corso Ferrucci / Corso Rosselli"},"geometry":{"type":"Point","coordinates":[7.651,45.0575]}},"Barriera di San Paolo",null,"Barriera Daziaria","Corso Ferrucci / Corso Rosselli"],
-        [{"type":"Feature","properties":{"name":"Barriera di Martinetto","tipo":"Barriera Daziaria","posizione":"Corso Regina Margherita / Corso Svizzera"},"geometry":{"type":"Point","coordinates":[7.66,45.083]}},"Barriera di Martinetto",null,"Barriera Daziaria","Corso Regina Margherita / Corso Svizzera"],
-        [{"type":"Feature","properties":{"name":"Barriera di Valdocco","tipo":"Barriera Daziaria","posizione":"Piazza Statuto (estremità)"},"geometry":{"type":"Point","coordinates":[7.6725,45.0785]}},"Barriera di Valdocco",null,"Barriera Daziaria","Piazza Statuto (estremità)"],
-        [{"type":"Feature","properties":{"name":"Barriera di Regio Parco","tipo":"Barriera Daziaria","posizione":"Corso Regio Parco / Via Catania"},"geometry":{"type":"Point","coordinates":[7.6985,45.0845]}},"Barriera di Regio Parco",null,"Barriera Daziaria","Corso Regio Parco / Via Catania"],
-        [{"type":"Feature","properties":{"name":"Barriera di Vanchiglia","tipo":"Barriera Daziaria","posizione":"Lungo Po Antonelli / Corso Tortona"},"geometry":{"type":"Point","coordinates":[7.705,45.074]}},"Barriera di Vanchiglia",null,"Barriera Daziaria","Lungo Po Antonelli / Corso Tortona"]
-      ],
-      fields: [
-        {name: "_geojson", type: "geojson"},
-        {name: "name", type: "string"},
-        {name: "description", type: "string"},
-        {name: "tipo", type: "string"},
-        {name: "posizione", type: "string"}
-      ]
-    }
-  },
-  {
-    version: "v1",
-    data: {
-      id: "-duxibf",
-      label: "cascine_e_piole_milton.geojson",
-      allData: [
-        [{"type":"Feature","properties":{"name":"Cascina Fossata","tipo":"Cascina","descrizione":"Luogo di scontri e rifugio della malavita di Barriera di Milano."},"geometry":{"type":"Point","coordinates":[7.685,45.094]}},"Cascina Fossata","Cascina","Luogo di scontri e rifugio della malavita di Barriera di Milano."],
-        [{"type":"Feature","properties":{"name":"Cascina Marchesa","tipo":"Cascina","descrizione":"Punto di riferimento rurale nel quartiere Regio Parco."},"geometry":{"type":"Point","coordinates":[7.698,45.085]}},"Cascina Marchesa","Cascina","Punto di riferimento rurale nel quartiere Regio Parco."],
-        [{"type":"Feature","properties":{"name":"Piola del Gatto Nero","tipo":"Piola","descrizione":"Osteria malfamata in zona Barriera di Nizza."},"geometry":{"type":"Point","coordinates":[7.675,45.048]}},"Piola del Gatto Nero","Piola","Osteria malfamata in zona Barriera di Nizza."],
-        [{"type":"Feature","properties":{"name":"Cascina Giaione","tipo":"Cascina","descrizione":"Presidio agricolo e punto di aggregazione in zona San Paolo."},"geometry":{"type":"Point","coordinates":[7.645,45.051]}},"Cascina Giaione","Cascina","Presidio agricolo e punto di aggregazione in zona San Paolo."],
-        [{"type":"Feature","properties":{"name":"Osteria della Malora","tipo":"Piola/Osteria","descrizione":"Nota per essere frequentata dalla Banda del Rasoio."},"geometry":{"type":"Point","coordinates":[7.681,45.072]}},"Osteria della Malora","Piola/Osteria","Nota per essere frequentata dalla Banda del Rasoio."],
-        [{"type":"Feature","properties":{"name":"Cascina Roccafranca","tipo":"Cascina","descrizione":"Al limite estremo della cinta daziaria sud-ovest."},"geometry":{"type":"Point","coordinates":[7.625,45.038]}},"Cascina Roccafranca","Cascina","Al limite estremo della cinta daziaria sud-ovest."],
-        [{"type":"Feature","properties":{"name":"Piola dei Tre Re","tipo":"Piola","descrizione":"Storica osteria del centro, teatro di risse tra Barabba."},"geometry":{"type":"Point","coordinates":[7.683,45.071]}},"Piola dei Tre Re","Piola","Storica osteria del centro, teatro di risse tra Barabba."]
-      ],
-      fields: [
-        {name: "_geojson", type: "geojson"},
-        {name: "name", type: "string"},
-        {name: "tipo", type: "string"},
-        {name: "descrizione", type: "string"}
-      ]
-    }
-  },
-  {
-    version: "v1",
-    data: {
-      id: "-qk9i28",
-      label: "fabbriche_milton.geojson",
-      allData: [
-        [{"type":"Feature","properties":{"name":"Fabbrica di Olii Davide Rossi"},"geometry":{"type":"Point","coordinates":[7.692,45.0825]}},"Fabbrica di Olii Davide Rossi"],
-        [{"type":"Feature","properties":{"name":"Fabbrica Candele Fratelli Lanza"},"geometry":{"type":"Point","coordinates":[7.6755,45.0485]}},"Fabbrica Candele Fratelli Lanza"],
-        [{"type":"Feature","properties":{"name":"Fabbrica Italiana Porcellane e Maioliche"},"geometry":{"type":"Point","coordinates":[7.6756,45.0486]}},"Fabbrica Italiana Porcellane e Maioliche"],
-        [{"type":"Feature","properties":{"name":"Officina del Gaz"},"geometry":{"type":"Point","coordinates":[7.69,45.075]}},"Officina del Gaz"],
-        [{"type":"Feature","properties":{"name":"Stabilimento FIAT Lingotto (1923)"},"geometry":{"type":"Point","coordinates":[7.6645,45.0335]}},"Stabilimento FIAT Lingotto (1923)"]
-      ],
-      fields: [
-        {name: "_geojson", type: "geojson"},
-        {name: "name", type: "string"}
-      ]
-    }
-  }
-];], // Aggiungi qui i tuoi dati CSV/GeoJSON se li hai estratti
-          config: config
-        }));
-      });
-    </script>
-  </body>
-</html>
+      const datasets = [
+        { version: "v1", data: { id: "cinta", label: "Cinta Daziaria", allData: [[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[7.683,45.046],[7.6755,45.0485],[7.662,45.045],[7.6545,45.0515],[7.651,45.0575],[7.6555,45.0755],[7.66,45.083],[7.675,45.091],[7.6915,45.0935],[7.6985,45.0845],[7.705,45.074],[7.6955,45.0645],[7.691,45.0595],[7.683,45.046]]]}}]], fields: [{name: "_geojson", type: "geojson"}]}},
+        { version: "v1", data: { id: "punti", label: "Luoghi Milton", allData: [
+            [{"type":"Feature","properties":{"n":"Fabbrica Lanza"},"geometry":{"type":"Point","coordinates":[7.6755,45
