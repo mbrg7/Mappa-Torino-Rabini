@@ -1,86 +1,96 @@
-<script>
-    const map = new maplibregl.Map({
-        container: 'map',
-        style: 'https://gist.githubusercontent.com/mbrg7/c6b3288ad7ef47308bd799a101e6bb16/raw/686f2f5f2f836f1c60111305249a65c3598175a0/mappa.json',
-        center: [7.68, 45.07], 
-        zoom: 13.5
-    });
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Torino 1878 - Ferro e Sangue</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <style>
+        body { margin: 0; padding: 0; background-color: #FAF9F6; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        .legend { position: absolute; bottom: 20px; right: 20px; background: rgba(255,255,255,0.9); padding: 15px; font-family: Georgia, serif; border: 2px solid #b7410e; border-radius: 8px; z-index: 1000; font-size: 0.9em; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
+        .dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="legend">
+        <strong style="font-size: 1.1em; display: block; margin-bottom: 8px;">Legenda Torino 1878</strong>
+        <div class="legend-item"><span style="border-bottom: 3px solid #b7410e; width: 20px; display: inline-block; margin-right: 8px;"></span> Cinta Daziaria</div>
+        <div class="legend-item"><span class="dot" style="background-color: #d90429;"></span> Eventi di Sangue</div>
+        <div class="legend-item"><span class="dot" style="background-color: #50727B;"></span> Fabbriche</div>
+        <div class="legend-item"><span class="dot" style="background-color: #C27664;"></span> Piole e Cascine</div>
+        <div class="legend-item"><span class="dot" style="background-color: #b7410e;"></span> Barriere</div>
+    </div>
 
-    map.on('load', () => {
-        // 1. CINTA DAZIARIA
-        map.addSource('cinta', {
-            'type': 'geojson',
-            'data': {
-                'type': 'Feature',
-                'geometry': {"type":"Polygon","coordinates":[[[7.683,45.046],[7.6755,45.0485],[7.662,45.045],[7.6545,45.0515],[7.651,45.0575],[7.6555,45.0755],[7.66,45.083],[7.675,45.091],[7.6915,45.0935],[7.6985,45.0845],[7.705,45.074],[7.6955,45.0645],[7.691,45.0595],[7.683,45.046]]]}
-            }
-        });
-        map.addLayer({'id': 'cinta-outline', 'type': 'line', 'source': 'cinta', 'paint': {'line-color': '#b7410e', 'line-width': 3}});
-
-        // 2. DATASET COMPLETO (LUOGHI + EVENTI)
-        map.addSource('punti', {
-            'type': 'geojson',
-            'data': {
-                'type': 'FeatureCollection',
-                'features': [
-                    // BARRIERE
-                    { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.6915, 45.0935] }, 'properties': { 'title': 'Barriera di Milano', 'tipo': 'Barriera', 'desc': 'Porta d’accesso Nord, cuore pulsante della mala.' } },
-                    { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.6755, 45.0485] }, 'properties': { 'title': 'Barriera di Nizza', 'tipo': 'Barriera', 'desc': 'Presidio doganale a Sud, zona di passaggio per i carrettieri.' } },
-                    
-                    // CASCINE E PIOLE
-                    { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.685, 45.094] }, 'properties': { 'title': 'Cascina Fossata', 'tipo': 'Cascina', 'desc': 'Rifugio sicuro e covo per le bande della Barriera.' } },
-                    { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.681, 45.072] }, 'properties': { 'title': 'Osteria della Malora', 'tipo': 'Piola', 'desc': 'Dove il vino costa poco e i segreti ancora meno.' } },
-                    
-                    // FABBRICHE
-                    { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.6755, 45.0485] }, 'properties': { 'title': 'Fabbrica Candele Lanza', 'tipo': 'Fabbrica', 'desc': 'Simbolo dell’industrializzazione che avanza.' } },
-                    { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.69, 45.075] }, 'properties': { 'title': 'Officina del Gaz', 'tipo': 'Fabbrica', 'desc': 'Il fumo e il fuoco della Torino operaia.' } },
-
-                    // --- EVENTI DEI BARABBA (CRONACA NERA) ---
-                    { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.688, 45.095] }, 'properties': { 'title': 'Scontro alla Fossata', 'tipo': 'Evento', 'desc': 'Battaglia campale tra la Banda del Rasoio e le guardie daziarie.' } },
-                    { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.678, 45.080] }, 'properties': { 'title': 'Agguato di via Cigna', 'tipo': 'Evento', 'desc': 'Regolamento di conti notturno tra picchiatori rivali.' } },
-                    { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.692, 45.092] }, 'properties': { 'title': 'Rivolta del Pane', 'tipo': 'Evento', 'desc': 'Tumulti popolari repressi duramente vicino alla Barriera.' } }
-                ]
-            }
+    <script>
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://gist.githubusercontent.com/mbrg7/c6b3288ad7ef47308bd799a101e6bb16/raw/686f2f5f2f836f1c60111305249a65c3598175a0/mappa.json',
+            center: [7.68, 45.07], 
+            zoom: 13.5
         });
 
-        // Layer dei Punti
-        map.addLayer({
-            'id': 'punti-layer',
-            'type': 'circle',
-            'source': 'punti',
-            'paint': {
-                'circle-radius': 8,
-                'circle-color': [
-                    'match',
-                    ['get', 'tipo'],
-                    'Barriera', '#b7410e', // Ruggine
-                    'Cascina', '#2E4F4F',  // Petrolio scuro
-                    'Piola', '#C27664',    // Terracotta
-                    'Fabbrica', '#50727B', // Grigio fumo
-                    'Evento', '#d90429',   // ROSSO SANGUE
-                    '#000000'
-                ],
-                'circle-stroke-width': 2,
-                'circle-stroke-color': '#ffffff'
-            }
-        });
+        map.on('load', () => {
+            // CINTA DAZIARIA
+            map.addSource('cinta', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'Feature',
+                    'geometry': {"type":"Polygon","coordinates":[[[7.683,45.046],[7.6755,45.0485],[7.662,45.045],[7.6545,45.0515],[7.651,45.0575],[7.6555,45.0755],[7.66,45.083],[7.675,45.091],[7.6915,45.0935],[7.6985,45.0845],[7.705,45.074],[7.6955,45.0645],[7.691,45.0595],[7.683,45.046]]]}
+                }
+            });
+            map.addLayer({'id': 'cinta-outline', 'type': 'line', 'source': 'cinta', 'paint': {'line-color': '#b7410e', 'line-width': 3}});
 
-        // Popup al click con descrizione
-        map.on('click', 'punti-layer', (e) => {
-            const props = e.features[0].properties;
-            new maplibregl.Popup()
-                .setLngLat(e.features[0].geometry.coordinates)
-                .setHTML(`
-                    <div style="font-family: Georgia, serif;">
-                        <strong style="color:#d90429; font-size:1.1em;">${props.title}</strong><br>
-                        <small><em>${props.tipo}</em></small><br><br>
-                        ${props.desc}
-                    </div>
-                `)
-                .addTo(map);
-        });
+            // TUTTI I PUNTI
+            map.addSource('punti', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'FeatureCollection',
+                    'features': [
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.6915, 45.0935] }, 'properties': { 't': 'Barriera di Milano', 'type': 'Barriera', 'd': 'Il cuore pulsante della malavita operaia.' } },
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.685, 45.094] }, 'properties': { 't': 'Cascina Fossata', 'type': 'Cascina', 'd': 'Covo della Banda del Rasoio.' } },
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.688, 45.095] }, 'properties': { 't': 'Scontro alla Fossata', 'type': 'Evento', 'd': 'Battaglia tra Barabba e guardie daziere.' } },
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.6755, 45.0485] }, 'properties': { 't': 'Fabbrica Lanza', 'type': 'Fabbrica', 'd': 'Simbolo dell’industria che divora la città.' } },
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.681, 45.072] }, 'properties': { 't': 'Osteria della Malora', 'type': 'Piola', 'd': 'Dove Milton pianifica le sue mosse.' } },
+                        { 'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [7.678, 45.080] }, 'properties': { 't': 'Agguato via Cigna', 'type': 'Evento', 'd': 'Regolamento di conti tra bande rivali.' } }
+                    ]
+                }
+            });
 
-        map.on('mouseenter', 'punti-layer', () => { map.getCanvas().style.cursor = 'pointer'; });
-        map.on('mouseleave', 'punti-layer', () => { map.getCanvas().style.cursor = ''; });
-    });
-</script>
+            map.addLayer({
+                'id': 'punti-layer',
+                'type': 'circle',
+                'source': 'punti',
+                'paint': {
+                    'circle-radius': 8,
+                    'circle-color': [
+                        'match', ['get', 'type'],
+                        'Barriera', '#b7410e',
+                        'Cascina', '#C27664',
+                        'Piola', '#C27664',
+                        'Fabbrica', '#50727B',
+                        'Evento', '#d90429',
+                        '#000000'
+                    ],
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': '#ffffff'
+                }
+            });
+
+            map.on('click', 'punti-layer', (e) => {
+                const props = e.features[0].properties;
+                new maplibregl.Popup()
+                    .setLngLat(e.features[0].geometry.coordinates)
+                    .setHTML('<strong>'+props.t+'</strong><br><small>'+props.type+'</small><br><br>'+props.d)
+                    .addTo(map);
+            });
+
+            map.on('mouseenter', 'punti-layer', () => { map.getCanvas().style.cursor = 'pointer'; });
+            map.on('mouseleave', 'punti-layer', () => { map.getCanvas().style.cursor = ''; });
+        });
+    </script>
+</body>
+</html>
